@@ -82,4 +82,160 @@ public class Backtracking {
             }
         }
     }
+
+    public List<List<Integer>> permute(int[] nums) {
+        List<List<Integer>> result = new ArrayList<>();
+        generatePermutations(nums, result, new ArrayList<>(), new HashSet<>());
+        return result;
+    }
+
+    private void generatePermutations(int[] nums, List<List<Integer>> result, List<Integer> current,
+                                      Set<Integer> currentlyAdded) {
+        if (current.size() == nums.length) {
+            result.add(new ArrayList<>(current));
+        } else {
+            for (int num : nums) {
+                if (!currentlyAdded.contains(num)) {
+                    current.add(num);
+                    currentlyAdded.add(num);
+                    generatePermutations(nums, result, current, currentlyAdded);
+                    current.remove(current.size() - 1);
+                    currentlyAdded.remove(num);
+                }
+            }
+        }
+    }
+
+    public List<List<Integer>> subsetsWithDup(int[] nums) {
+        List<List<Integer>> result = new ArrayList<>();
+        Arrays.sort(nums);
+        generateSubsetsDup(0, nums, new ArrayList<>(), result);
+        return result;
+    }
+
+    private static void generateSubsetsDup(int start, int[] nums, List<Integer> current, List<List<Integer>> result) {
+        result.add(new ArrayList<>(current)); // ensures that when we backtrack the lists in results are not altered
+        for (int i = start; i < nums.length; i++) {
+            if (i > start && nums[i] == nums[i - 1]) continue;
+            current.add(nums[i]);
+            generateSubsetsDup(i + 1, nums, current, result);
+            current.remove(current.size() - 1);
+        }
+    }
+
+    public boolean exist(char[][] board, String word) {
+        boolean wordExists = false;
+        Set<String> included = new HashSet<>();
+        if (!word.isEmpty() && board.length > 0 && board[0].length > 0) {
+            for (int i = 0; i < board.length; i++) {
+                for (int j = 0; j < board[i].length; j++) {
+                    wordExists = checkForWord(board, word, 0, i, j, included);
+                    if (wordExists) {
+                        break;
+                    }
+                }
+                if (wordExists) {
+                    break;
+                }
+            }
+        }
+        return wordExists;
+    }
+
+
+    private boolean checkForWord(char[][] board, String word, int index, int i, int j, Set<String> included) {
+        String indexStr = i + "," + j;
+        if (included.contains(indexStr) || i < 0 || j < 0 || i >= board.length || j >= board[i].length) {
+            return false;
+        } else {
+            if (board[i][j] == word.charAt(index)) {
+                if (index + 1 == word.length()) {
+                    return true;
+                } else {
+                    included.add(indexStr);
+                    boolean wordExist = checkForWord(board, word, index + 1, i, j + 1, included);
+                    if (!wordExist) {
+                        wordExist = checkForWord(board, word, index + 1, i, j - 1, included);
+                    }
+                    if (!wordExist) {
+                        wordExist = checkForWord(board, word, index + 1, i + 1, j, included);
+                    }
+                    if (!wordExist) {
+                        wordExist = checkForWord(board, word, index + 1, i - 1, j, included);
+                    }
+                    included.remove(indexStr);
+                    return wordExist;
+                }
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public List<List<String>> partition(String s) {
+        List<List<String>> palindromeSubstrings = new ArrayList<>();
+        generatePalindromicSubstrings(s, palindromeSubstrings, 0, new ArrayList<>());
+        return palindromeSubstrings;
+    }
+
+    private void generatePalindromicSubstrings(String s, List<List<String>> palindromeSubstrings, int start,
+                                               List<String> current) {
+        if (s.length() == start) {
+            palindromeSubstrings.add(new ArrayList<>(current));
+            return;
+        }
+        for (int i = 1; i < s.length() - start + 1; i++) {
+            var subString = s.substring(start, start + i);
+            if (isPalindrome(subString)) {
+                current.add(subString);
+                generatePalindromicSubstrings(s, palindromeSubstrings, start + i, current);
+                current.remove(current.size() - 1);
+            }
+        }
+    }
+
+    private boolean isPalindrome(String str) {
+        boolean isPalindrome = true;
+        int i = 0;
+        int j = str.length() - 1;
+
+        while (i < j && isPalindrome) {
+            isPalindrome = str.charAt(i) == str.charAt(j);
+            i++;
+            j--;
+        }
+        return isPalindrome;
+    }
+
+    public List<String> letterCombinations(String digits) {
+        Map<Character, List<Character>> keyMap = new HashMap<>();
+        keyMap.put('2', List.of('a', 'b', 'c'));
+        keyMap.put('3', List.of('d', 'e', 'f'));
+        keyMap.put('4', List.of('g', 'h', 'i'));
+        keyMap.put('5', List.of('j', 'k', 'l'));
+        keyMap.put('6', List.of('m', 'n', 'o'));
+        keyMap.put('7', List.of('p', 'q', 'r', 's'));
+        keyMap.put('8', List.of('t', 'u', 'v'));
+        keyMap.put('9', List.of('w', 'x', 'y', 'z'));
+
+        List<String> results = new ArrayList<>();
+        generatePossibleWords(digits, results, keyMap, 0, "");
+        return results;
+    }
+
+    private void generatePossibleWords(String digits, List<String> results, Map<Character, List<Character>> keyMap,
+                                       int start, String current) {
+        if (current.length() == digits.length()) {
+            results.add(current);
+            return;
+        }
+        for (int i = start; i < digits.length(); i++) {
+            char number = digits.charAt(i);
+            for (char ch : keyMap.get(number)) {
+                current += ch;
+                generatePossibleWords(digits, results, keyMap, start + 1, current);
+                current = current.substring(0, current.length() - 1);
+            }
+        }
+    }
 }
