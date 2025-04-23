@@ -1,5 +1,7 @@
 package neetcode;
 
+import dtos.Pair;
+
 import java.util.*;
 
 public class Backtracking {
@@ -219,23 +221,73 @@ public class Backtracking {
         keyMap.put('9', List.of('w', 'x', 'y', 'z'));
 
         List<String> results = new ArrayList<>();
-        generatePossibleWords(digits, results, keyMap, 0, "");
+        generatePossibleWords(digits, results, keyMap, 0, new StringBuilder());
         return results;
     }
 
+    // Using StringBuilder gives a significant performance benefit
+    // in backtrack step if using string a new substring has to be created to replace the current
+    // this is much easier in string builder where last char can be simply removed
     private void generatePossibleWords(String digits, List<String> results, Map<Character, List<Character>> keyMap,
-                                       int start, String current) {
-        if (current.length() == digits.length()) {
-            results.add(current);
+                                       int start, StringBuilder current) {
+        if (current.length() == digits.length() && !current.isEmpty()) {
+            results.add(current.toString());
             return;
         }
-        for (int i = start; i < digits.length(); i++) {
-            char number = digits.charAt(i);
+        if (start < digits.length()) {
+            char number = digits.charAt(start);
             for (char ch : keyMap.get(number)) {
-                current += ch;
+                current.append(ch);
                 generatePossibleWords(digits, results, keyMap, start + 1, current);
-                current = current.substring(0, current.length() - 1);
+                current.deleteCharAt(current.length() - 1);
             }
         }
+    }
+
+    public List<List<String>> solveNQueens(int n) {
+        List<List<String>> results = new ArrayList<>();
+        if (n == 1) {
+            results.add(List.of("Q"));
+        } else {
+            List<Pair> queens = new ArrayList<>();
+            generateNQueenSolutions(n, results, new ArrayList<>(), 0, queens);
+        }
+        return results;
+    }
+
+    private void generateNQueenSolutions(int n, List<List<String>> results, List<String> current, int row, List<Pair> queens) {
+        if (current.size() == n) {
+            results.add(new ArrayList<>(current));
+        } else {
+            for (int j = 0; j < n; j++) {
+                if (isValidSquareForQueen(row, j, queens)) {
+                    StringBuilder currentBuilder = new StringBuilder();
+                    for (int k = 0; k < n; k++) {
+                        if (k == j) {
+                            currentBuilder.append("Q");
+                        } else {
+                            currentBuilder.append(".");
+                        }
+                    }
+                    current.add(currentBuilder.toString());
+                    queens.add(new Pair(row, j));
+                    generateNQueenSolutions(n, results, current, row + 1, queens);
+                    current.remove(current.size() - 1);
+                    queens.remove(queens.size() - 1);
+                }
+            }
+        }
+    }
+
+    private boolean isValidSquareForQueen(int i, int j, List<Pair> queens) {
+        boolean isValid = true;
+        for (Pair queen : queens) {
+            if (j == queen.getY() || i == queen.getX() || queen.getX() + queen.getY() == i + j
+                    || queen.getX() - i == queen.getY() - j) {
+                isValid = false;
+                break;
+            }
+        }
+        return isValid;
     }
 }
