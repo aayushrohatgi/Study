@@ -1,12 +1,8 @@
-import neetcode.ArrayAndHashing;
-import neetcode.Backtracking;
-
+import neetcode.TwoPointers;
 
 public class Main {
     public static void main(String[] args) {
-//        LearnSerialization learnSerialization = new LearnSerialization();
-//        learnSerialization.whenSerializingAndDeserializing_ThenObjectIsTheSame();
-        Backtracking backtracking = new Backtracking();
-        System.out.println(backtracking.solveNQueens(4));
+        TwoPointers twoPointers = new TwoPointers();
+        System.out.println(twoPointers.trap(new int[]{0,2,0,3,1,0,1,3,2,1}));
     }
 }
