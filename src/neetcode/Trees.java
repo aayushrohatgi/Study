@@ -173,4 +173,45 @@ public class Trees {
         }
         return levels;
     }
+
+    public List<Integer> rightSideView(TreeNode root) {
+        List<Integer> rightViewNodes = new ArrayList<>();
+        if (root != null) {
+            Deque<TreeNode> queue = new ArrayDeque<>();
+            queue.add(root);
+            while (!queue.isEmpty()) {
+                int levelSize = queue.size();
+                for (int i = 0; i < levelSize; i++) {
+                    TreeNode node = queue.poll();
+                    if (i == levelSize - 1) {
+                        rightViewNodes.add(node.val); // ArrayDeque cant hold null values
+                    }
+                    if (null != node.left) {
+                        queue.add(node.left);
+                    }
+                    if (null != node.right) {
+                        queue.add(node.right);
+                    }
+                }
+            }
+        }
+        return rightViewNodes;
+    }
+
+    public int goodNodes(TreeNode root) {
+        return collectGoodNodes(root, root.val);
+    }
+
+    private int collectGoodNodes(TreeNode root, int maxTillNow) {
+        if (root == null) {
+            return 0;
+        }
+        if (maxTillNow <= root.val) {
+            maxTillNow = root.val;
+            return collectGoodNodes(root.left, maxTillNow) + collectGoodNodes(root.right, maxTillNow) + 1;
+        } else {
+            return collectGoodNodes(root.left, maxTillNow) + collectGoodNodes(root.right, maxTillNow);
+        }
+    }
+
 }
