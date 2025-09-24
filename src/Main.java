@@ -1,8 +1,10 @@
-import neetcode.Stacks;
+import neetcode.DP1;
+
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        Stacks stacks = new Stacks();
-        stacks.dailyTemperatures(new int[]{73, 74, 75, 71, 69, 72, 76, 73});
+        DP1 dp1 = new DP1();
+        System.out.println(dp1.wordBreak("aaaaaaa", List.of("aa", "aaaa")));
     }
 }

@@ -2,10 +2,7 @@ package neetcode;
 
 import dtos.TreeNode;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 
 public class Trees {
 
@@ -95,7 +92,7 @@ public class Trees {
         return new ResultIsBalanced(isBalanced, Math.max(leftResult.depth, rightResult.depth) + 1);
     }
 
-    private static class ResultIsBalanced {
+    private class ResultIsBalanced {
         boolean isBalanced;
         int depth;
 
@@ -212,6 +209,54 @@ public class Trees {
         } else {
             return collectGoodNodes(root.left, maxTillNow) + collectGoodNodes(root.right, maxTillNow);
         }
+    }
+
+    public boolean isValidBST(TreeNode root) {
+        return isValidBSTNode(root, Long.MIN_VALUE, Long.MAX_VALUE);
+    }
+
+    private boolean isValidBSTNode(TreeNode node, long low, long high) {
+        if (node == null) return true;
+        long nodeValue = node.val;  // promote to long just for the test
+        return nodeValue > low && nodeValue < high
+                && isValidBSTNode(node.left, low, nodeValue)
+                && isValidBSTNode(node.right, nodeValue, high);
+    }
+
+    /*
+        Goal is to build binary tree from preorder and inorder traversal.
+        Solve it using recursion. At each step we will build the root and ask recursion to build left subtree and
+        right subtree.
+        preOrder starting index is the root value, find it in inorder to know the left subtree and right subtree counts
+
+        For efficiency store inorder elements with its index in hashmap to prevent O(n) search for inorder index of node
+     */
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        Map<Integer, Integer> inOrderElementToIndexMap = new HashMap<>();
+        for (int i = 0; i < inorder.length; i++) {
+            inOrderElementToIndexMap.put(inorder[i], i);
+        }
+        return buildSubTree(preorder, inorder, inOrderElementToIndexMap, 0, inorder.length - 1, 0, preorder.length - 1);
+    }
+
+    private TreeNode buildSubTree(int[] preorder, int[] inorder, Map<Integer, Integer> inOrderElementToIndexMap,
+                                  int inOrderStart, int inOrderEnd,
+                                  int preOrderStart, int preOrderEnd) {
+        TreeNode node = new TreeNode(preorder[preOrderStart]);
+        int nodeInOrderIndex = inOrderElementToIndexMap.get(preorder[preOrderStart]);
+        int inOrderLeftEnd = nodeInOrderIndex - 1;
+        if (inOrderLeftEnd >= inOrderStart) {
+            node.left = buildSubTree(preorder, inorder, inOrderElementToIndexMap, inOrderStart,
+                    inOrderLeftEnd, preOrderStart + 1,
+                    preOrderStart + 1 + (inOrderLeftEnd - inOrderStart));
+        }
+        int inOrderRightStart = nodeInOrderIndex + 1;
+        if (inOrderRightStart <= inOrderEnd) {
+            node.right = buildSubTree(preorder, inorder,
+                    inOrderElementToIndexMap, inOrderRightStart, inOrderEnd,
+                    preOrderEnd - (inOrderEnd - inOrderRightStart), preOrderEnd);
+        }
+        return node;
     }
 
 }
