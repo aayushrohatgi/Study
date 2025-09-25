@@ -3,7 +3,12 @@ package neetcode;
 import dtos.Trie;
 import dtos.TrieNode;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class DP1 {
 
@@ -281,7 +286,42 @@ public class DP1 {
         return maxLen;
     }
 
+    /*
+        If the sum of the array elements is not even, we can immediately return false.
+        Think in terms of recursion, where we try to build a subset with a sum equal to half of the total sum.
+        If we find such a subset, the remaining elements will automatically form another subset with the same sum
+     */
     public boolean canPartition(int[] nums) {
+        Map<String, Boolean> dpMap = new HashMap<>();
+        int sum = 0;
+        for (var num : nums) {
+            sum += num;
+        }
+        if ((sum & 1) == 1) {
+            return false;
+        } else {
+            return isPossibleToPartWithGivenSum(nums, 0, sum / 2, dpMap);
+        }
+    }
 
+    /*
+        check if skipping or including this index allows to create the desired sum
+     */
+    private boolean isPossibleToPartWithGivenSum(int[] nums, int startIndex, int desiredSum,
+                                                 Map<String, Boolean> dpMap) {
+        if (desiredSum == 0) {
+            return true;
+        }
+        if (startIndex >= nums.length || desiredSum < 0) {
+            return false;
+        }
+        String key = startIndex + "," + desiredSum;
+        if (dpMap.containsKey(key)) {
+            return dpMap.get(key);
+        }
+        boolean isPossible = isPossibleToPartWithGivenSum(nums, startIndex + 1, desiredSum, dpMap)
+                || isPossibleToPartWithGivenSum(nums, startIndex + 1, desiredSum - nums[startIndex], dpMap);
+        dpMap.put(key, isPossible);
+        return isPossible;
     }
 }
